@@ -1,12 +1,17 @@
-let c, s, cs, cSqr, sSqr;
+class trigonometricValues {
+    constructor(angle) {
+        this.changeAngle(angle);
+    }
 
-function updateAngle(a) {
-    c = cos(a);
-    s = sin(a);
-    cs = c * s;
-    cSqr = pow(c, 2);
-    sSqr = pow(s, 2);
+    changeAngle(angle) {
+        this.c = Math.cos(angle);
+        this.s = Math.sin(angle);
+        this.cs = this.c * this.s;
+        this.cSqr = Math.pow(this.c, 2);
+        this.sSqr = Math.pow(this.s, 2);
+    }
 }
+let tv = new trigonometricValues(0);
 
 class Box {
     constructor(x, y, size) {
@@ -16,6 +21,7 @@ class Box {
     }
 
     show() {
+        noFill();
         square(0, 0, this.size);
     }
 }
@@ -30,8 +36,8 @@ class Branch {
             this.leftBranch = new Branch(
                 new Box(
                     0,
-                    -this.root.size * c,
-                    this.root.size * c
+                    -this.root.size * tv.c,
+                    this.root.size * tv.c
                 ),
                 depth - 1,
                 angle
@@ -39,9 +45,9 @@ class Branch {
 
             this.rightBranch = new Branch(
                 new Box(
-                    this.root.size * (cSqr + cs),
-                    -this.root.size * (sSqr + cs),
-                    this.root.size * s
+                    this.root.size * (tv.cSqr + tv.cs),
+                    -this.root.size * (tv.sSqr + tv.cs),
+                    this.root.size * tv.s
                 ),
                 depth - 1,
                 angle
@@ -51,7 +57,7 @@ class Branch {
 
     show() {
         this.root.show();
-        if(this.depth > 0) {
+        if (this.depth > 0) {
             push();
             rotate(-this.angle);
             translate(this.leftBranch.root.x, this.leftBranch.root.y);
@@ -76,6 +82,11 @@ class PythagorasTree {
         this.angle = angle;
         this.depth = depth;
 
+        tv.changeAngle(this.angle);
+        this.recreate();
+    }
+
+    recreate() {
         this.root = new Branch(
             new Box(0, 0, this.size),
             this.depth,
@@ -83,19 +94,39 @@ class PythagorasTree {
         );
     }
 
-    changeAngle(angle) {
-        updateAngle(angle);
+    setAngle(angle) {
+        tv.changeAngle(angle);
 
         this.angle = angle;
-        this.root = new Branch(
-            new Box(0, 0, this.size),
-            this.depth,
-            this.angle
-        );
+        this.recreate();
+    }
+
+    setSize(size) {
+        this.size = size;
+        this.recreate();
+    }
+
+    setDepth(depth) {
+        this.depth = depth;
+        this.recreate();
+    }
+
+    getAngle() {
+        return int(degrees(this.angle));
+    }
+
+    getSize() {
+        return this.size;
+    }
+
+    getDepth() {
+        return this.depth;
     }
 
     show() {
+        push();
         translate(this.x, this.y);
         this.root.show();
+        pop();
     }
 }
